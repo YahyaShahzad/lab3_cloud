@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusOS - Enterprise SaaS & Portfolio Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.8); }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+
+    <div id="app" class="flex h-full w-full overflow-hidden">
+        
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden transition-opacity"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 -translate-x-full md:translate-x-0 shadow-lg md:shadow-none">
+            <!-- Brand Logo Area -->
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-cube text-lg"></i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">NexusOS</span>
+                </div>
+                <button id="closeSidebar" class="md:hidden text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Workspace</p>
+                
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 dark:text-indigo-400" data-target="dashboard">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </button>
+                
+                <button onclick="switchTab('analytics')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60" data-target="analytics">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>Analytics</span>
+                </button>
+                
+                <button onclick="switchTab('projects')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60" data-target="projects">
+                    <i class="fa-solid fa-folder-open w-5 text-center"></i>
+                    <span>Projects & Portfolio</span>
+                </button>
+
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-6 mb-2">Preferences</p>
+                
+                <button onclick="switchTab('settings')" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60" data-target="settings">
+                    <i class="fa-solid fa-gear w-5 text-center"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <!-- User Profile Box in Sidebar -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center space-x-3 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
+                    <img class="w-9 h-9 rounded-full object-cover border border-indigo-500/30" src="https://placehold.co/100x100/6366f1/ffffff?text=JD" alt="User avatar" onerror="this.src='https://placehold.co/100x100/e2e8f0/64748b?text=U'">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate text-slate-800 dark:text-slate-200">Alex Morgan</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">alex@nexus.io</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-30 shrink-0">
+                <div class="flex items-center space-x-4">
+                    <button id="openSidebar" class="md:hidden text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 id="pageTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">Overview Dashboard</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Welcome back, here is your real-time performance update.</p>
+                    </div>
+                </div>
+
+                <!-- Navbar Actions -->
+                <div class="flex items-center space-x-3">
+                    <!-- Global Search -->
+                    <div class="relative hidden sm:block">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" placeholder="Search analytics, projects..." class="w-48 lg:w-64 pl-9 pr-4 py-1.5 text-sm bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 rounded-xl focus:outline-none transition-all dark:text-slate-200 placeholder-slate-400">
+                    </div>
+
+                    <!-- Theme Toggle Button -->
+                    <button id="themeToggle" onclick="toggleTheme()" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                        <i id="themeIcon" class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <!-- Notifications Dropdown Trigger -->
+                    <button onclick="showNotificationModal('You have 3 unread reports waiting in your queue.')" class="relative w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Views Area -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+                <!-- ==================== DASHBOARD TAB ==================== -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    <!-- Quick Stats Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Revenue</p>
+                                <h3 class="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">$84,254</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-500 mt-2">
+                                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +14.2% this month
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-dollar-sign"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Active Users</p>
+                                <h3 class="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">12,680</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-500 mt-2">
+                                    <i class="fa-solid fa-arrow-trend-up mr-1"></i> +8.1% growth
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Conversion Rate</p>
+                                <h3 class="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">3.48%</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-rose-500 mt-2">
+                                    <i class="fa-solid fa-arrow-trend-down mr-1"></i> -0.4% down
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Server Uptime</p>
+                                <h3 class="text-2xl font-bold mt-1 text-slate-800 dark:text-slate-100">99.98%</h3>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-500 mt-2">
+                                    <i class="fa-solid fa-shield-halved mr-1"></i> Optimal
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-server"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Dashboard Chart & Side Widget -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Revenue & Acquisition Overview</h3>
+                                    <p class="text-xs text-slate-500">Monthly financial progress across quarters</p>
+                                </div>
+                                <select class="bg-slate-100 dark:bg-slate-800 text-xs font-medium px-3 py-1.5 rounded-xl border-0 text-slate-600 dark:text-slate-300 focus:outline-none">
+                                    <option>Last 6 Months</option>
+                                    <option>Full Year 2025</option>
+                                </select>
+                            </div>
+                            <div class="relative h-72 w-full">
+                                <canvas id="dashboardChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity List -->
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Recent Activity</h3>
+                            <p class="text-xs text-slate-500 mb-4">System alerts and client actions</p>
+                            
+                            <div class="space-y-4 flex-1 overflow-y-auto">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-user-plus text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">New enterprise client registered</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">Acme Corp signed up for Pro plan</p>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">10 mins ago</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Server Deployment Completed</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">Node cluster US-East successfully updated</p>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">45 mins ago</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 rounded-full bg-violet-500/10 text-violet-500 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-file-invoice text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Invoice Generated #INV-9021</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">Successfully sent to billing department</p>
+                                        <span class="text-[10px] text-slate-400 mt-1 block">3 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="showNotificationModal('All activity logs exported successfully.')" class="w-full mt-4 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                                View Full Log
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== ANALYTICS TAB ==================== -->
+                <div id="tab-analytics" class="tab-content hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Traffic Source Chart -->
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Traffic Acquisition Channels</h3>
+                            <p class="text-xs text-slate-500 mb-4">Breakdown of organic vs direct vs referral traffic</p>
+                            <div class="relative h-64 w-full flex items-center justify-center">
+                                <canvas id="trafficChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- User Retention Chart -->
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Monthly Active Retention</h3>
+                            <p class="text-xs text-slate-500 mb-4">Percentage of returning subscribers over 6 months</p>
+                            <div class="relative h-64 w-full">
+                                <canvas id="retentionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Data Table -->
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Top Performing Landing Pages</h3>
+                                <p class="text-xs text-slate-500">Visitor counts and bounce metrics</p>
+                            </div>
+                            <button onclick="showNotificationModal('Analytics report exported as CSV.')" class="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors shadow-sm">
+                                Export CSV
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                                <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs uppercase font-semibold text-slate-400">
+                                    <tr>
+                                        <th class="px-6 py-3">Page Route</th>
+                                        <th class="px-6 py-3">Unique Visitors</th>
+                                        <th class="px-6 py-3">Bounce Rate</th>
+                                        <th class="px-6 py-3">Avg Time on Page</th>
+                                        <th class="px-6 py-3">Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                        <td class="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">/app/dashboard/overview</td>
+                                        <td class="px-6 py-4">45,210</td>
+                                        <td class="px-6 py-4">24.5%</td>
+                                        <td class="px-6 py-4">3m 42s</td>
+                                        <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">Excellent</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                        <td class="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">/features/enterprise-security</td>
+                                        <td class="px-6 py-4">28,940</td>
+                                        <td class="px-6 py-4">41.2%</td>
+                                        <td class="px-6 py-4">2m 10s</td>
+                                        <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs rounded-full bg-indigo-500/10 text-indigo-500 font-semibold">Good</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                        <td class="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">/pricing/plans-tier</td>
+                                        <td class="px-6 py-4">19,850</td>
+                                        <td class="px-6 py-4">32.8%</td>
+                                        <td class="px-6 py-4">4m 05s</td>
+                                        <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-semibold">Excellent</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PROJECTS & PORTFOLIO TAB ==================== -->
+                <div id="tab-projects" class="tab-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Featured Portfolio & Projects</h2>
+                            <p class="text-xs text-slate-500">Showcase of deployed client applications and internal prototypes</p>
+                        </div>
+                        <button onclick="showNotificationModal('Project creation wizard opened.')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors flex items-center space-x-2 w-fit">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>New Project</span>
+                        </button>
+                    </div>
+
+                    <!-- Portfolio Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Project 1 -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+                            <div class="h-40 bg-gradient-to-r from-blue-600 to-indigo-600 relative p-4 flex items-end">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-lg uppercase tracking-wider">Cloud Infra</span>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">HyperScale Kubernetes Engine</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Multi-cloud cluster orchestration dashboard built with React and Go backend microservices.</p>
+                                    <div class="flex flex-wrap gap-1.5 mt-4">
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">Kubernetes</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">Go</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">Tailwind</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <span class="text-xs font-medium text-emerald-500 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> Live
+                                    </span>
+                                    <button onclick="showNotificationModal('Opening project deployment preview.')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                        Explore <i class="fa-solid fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+                            <div class="h-40 bg-gradient-to-r from-violet-600 to-fuchsia-600 relative p-4 flex items-end">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-lg uppercase tracking-wider">AI & ML</span>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Nexus Neural Copilot</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Generative assistant transformer model optimized for automated developer workflow code suggestions.</p>
+                                    <div class="flex flex-wrap gap-1.5 mt-4">
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">Python</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">PyTorch</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">FastAPI</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <span class="text-xs font-medium text-emerald-500 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> Live
+                                    </span>
+                                    <button onclick="showNotificationModal('Opening project deployment preview.')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                        Explore <i class="fa-solid fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+                            <div class="h-40 bg-gradient-to-r from-emerald-600 to-teal-600 relative p-4 flex items-end">
+                                <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold rounded-lg uppercase tracking-wider">Fintech</span>
+                            </div>
+                            <div class="p-6 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base">Apex Crypto Liquidity Hub</h3>
+                                    <p class="text-xs text-slate-500 mt-1">High-frequency cryptocurrency trading terminal with real-time websocket order book feeds.</p>
+                                    <div class="flex flex-wrap gap-1.5 mt-4">
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">TypeScript</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">WebSockets</span>
+                                        <span class="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-medium rounded-md">Chart.js</span>
+                                    </div>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <span class="text-xs font-medium text-amber-500 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span> Beta
+                                    </span>
+                                    <button onclick="showNotificationModal('Opening project deployment preview.')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                        Explore <i class="fa-solid fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTINGS TAB ==================== -->
+                <div id="tab-settings" class="tab-content hidden space-y-6 max-w-4xl">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">Account & Workspace Settings</h2>
+                        <p class="text-xs text-slate-500">Manage your profile credentials, security protocols, and app preferences</p>
+                    </div>
+
+                    <!-- Profile Settings Card -->
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base border-b border-slate-200 dark:border-slate-800 pb-3">Personal Information</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
+                                <input type="text" value="Alex Morgan" class="w-full px-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 rounded-xl focus:outline-none dark:text-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Email Address</label>
+                                <input type="email" value="alex@nexus.io" class="w-full px-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 rounded-xl focus:outline-none dark:text-slate-200">
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button onclick="showNotificationModal('Profile settings saved successfully.')" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Security Card -->
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base border-b border-slate-200 dark:border-slate-800 pb-3">Security & Authentication</h3>
+                        <div class="flex items-center justify-between py-2">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">Two-Factor Authentication (2FA)</p>
+                                <p class="text-xs text-slate-500">Secure your account with TOTP authenticator application verification.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-t border-slate-100 dark:border-slate-800">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">Email Alerts for Security</p>
+                                <p class="text-xs text-slate-500">Receive notifications on new unrecognized browser logins.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Custom Notification Modal (Replacement for alert) -->
+    <div id="notificationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-sm w-full mx-4 text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-xl mx-auto">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">System Notification</h3>
+            <p id="modalMessage" class="text-xs text-slate-500 dark:text-slate-400">Notification message goes here...</p>
+            <button onclick="closeNotificationModal()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                Understood
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Controller -->
+    <script>
+        let dashboardChartInstance = null;
+        let trafficChartInstance = null;
+        let retentionChartInstance = null;
+
+        // Mobile Sidebar controls
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarBackdrop.classList.toggle('hidden');
+        }
+
+        openSidebarBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarBackdrop.addEventListener('click', toggleSidebar);
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            // Show selected tab
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            // Update active state on nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-950/50', 'dark:text-indigo-400');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800/60');
+            });
+
+            const activeBtn = document.querySelector(`[data-target="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800/60');
+                activeBtn.classList.add('text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-950/50', 'dark:text-indigo-400');
+            }
+
+            // Update page title header
+            const titles = {
+                dashboard: 'Overview Dashboard',
+                analytics: 'Traffic & Performance Analytics',
+                projects: 'Portfolio & Client Projects',
+                settings: 'Account Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabId] || 'Dashboard';
+
+            // Close mobile sidebar if open
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                toggleSidebar();
+            }
+
+            // Resize charts if switching views
+            setTimeout(() => {
+                if (dashboardChartInstance) dashboardChartInstance.resize();
+                if (trafficChartInstance) trafficChartInstance.resize();
+                if (retentionChartInstance) retentionChartInstance.resize();
+            }, 50);
+        }
+
+        // Custom Notification Modal
+        function showNotificationModal(message) {
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            updateChartTheme();
+        }
+
+        // Initialize Theme from localStorage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').classList.remove('fa-moon');
+            document.getElementById('themeIcon').classList.add('fa-sun');
+        }
+
+        // Initialize Charts with Chart.js
+        function initCharts() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226, 232, 240, 0.8)';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            // 1. Dashboard Line Chart
+            const ctxDash = document.getElementById('dashboardChart').getContext('2d');
+            dashboardChartInstance = new Chart(ctxDash, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: [12000, 19000, 28000, 42000, 58000, 84254],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    }
+                }
+            });
+
+            // 2. Traffic Doughnut Chart
+            const ctxTraffic = document.getElementById('trafficChart').getContext('2d');
+            trafficChartInstance = new Chart(ctxTraffic, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Organic Search', 'Direct Referral', 'Social Campaigns', 'Affiliates'],
+                    datasets: [{
+                        data: [55, 25, 12, 8],
+                        backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: textColor, boxWidth: 12 } }
+                    }
+                }
+            });
+
+            // 3. Retention Bar Chart
+            const ctxRetention = document.getElementById('retentionChart').getContext('2d');
+            retentionChartInstance = new Chart(ctxRetention, {
+                type: 'bar',
+                data: {
+                    labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+                    datasets: [{
+                        label: 'Retention %',
+                        data: [94, 88, 82, 79, 76, 75],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: textColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    }
+                }
+            });
+        }
+
+        // Update charts dynamically on theme switch
+        function updateChartTheme() {
+            if (dashboardChartInstance) {
+                dashboardChartInstance.destroy();
+                trafficChartInstance.destroy();
+                retentionChartInstance.destroy();
+                initCharts();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+    </script>
+</body>
+</html>
