@@ -97,6 +97,18 @@ footer{margin-top:80px;border-top:1px solid var(--border);background:var(--surfa
 footer strong{color:var(--text)}
 </style>
 </head>
+  <script>
+fetch("/.netlify/functions/stock")
+  .then(r => r.json())
+  .then(items => {
+    items.forEach(p => {
+      const card = [...document.querySelectorAll(".card")]
+        .find(c => c.textContent.includes(p.default_code));
+      if (card) card.querySelector(".row b").textContent = p.qty_available;
+    });
+  })
+  .catch(() => console.log("Using static values"));
+</script>
 <body>
 
 <nav>
