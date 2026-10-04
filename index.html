@@ -97,18 +97,6 @@ footer{margin-top:80px;border-top:1px solid var(--border);background:var(--surfa
 footer strong{color:var(--text)}
 </style>
 </head>
-  <script>
-fetch("/.netlify/functions/stock")
-  .then(r => r.json())
-  .then(items => {
-    items.forEach(p => {
-      const card = [...document.querySelectorAll(".card")]
-        .find(c => c.textContent.includes(p.default_code));
-      if (card) card.querySelector(".row b").textContent = p.qty_available;
-    });
-  })
-  .catch(() => console.log("Using static values"));
-</script>
 <body>
 
 <nav>
@@ -124,7 +112,7 @@ fetch("/.netlify/functions/stock")
 
 <header class="hero">
   <div class="container">
-    <span class="badge"><b></b> Live inventory snapshot</span>
+    <span class="badge"><b></b> <span id="live-status">Static inventory snapshot</span></span>
     <h1>Smart Inventory,<br>Managed in the Cloud</h1>
     <p>Stock is tracked in Odoo (SaaS) and this dashboard is deployed on Netlify (PaaS) through a GitHub pipeline.</p>
     <div class="btns">
@@ -137,10 +125,10 @@ fetch("/.netlify/functions/stock")
 <main class="container">
 
   <div class="stats">
-    <div class="stat"><span>Total Received</span><strong>80</strong><small class="up">▲ From ABC Suppliers</small></div>
-    <div class="stat"><span>Total Delivered</span><strong>15</strong><small class="down">▼ To Ali Traders</small></div>
-    <div class="stat"><span>Units On Hand</span><strong>65</strong><small class="up">● In stock</small></div>
-    <div class="stat"><span>Active Products</span><strong>2</strong><small class="up">● Tracked in Odoo</small></div>
+    <div class="stat"><span>Total Received</span><strong id="s-in">80</strong><small class="up">▲ From ABC Suppliers</small></div>
+    <div class="stat"><span>Total Delivered</span><strong id="s-out">15</strong><small class="down">▼ To Ali Traders</small></div>
+    <div class="stat"><span>Units On Hand</span><strong id="s-on">65</strong><small class="up">● In stock</small></div>
+    <div class="stat"><span>Active Products</span><strong id="s-prod">2</strong><small class="up">● Tracked in Odoo</small></div>
   </div>
 
   <section id="products">
@@ -148,17 +136,17 @@ fetch("/.netlify/functions/stock")
     <h2>Products</h2>
     <p class="sub">Stockable goods configured in Odoo with units of measure and tracking options.</p>
     <div class="grid">
-      <article class="card">
+      <article class="card" data-sku="WM-001">
         <div class="card-top"><div class="icon">🖱️</div><div><h3>Wireless Mouse</h3><p>2.4 GHz ergonomic wireless mouse</p></div></div>
         <div class="tags"><span class="tag">SKU: WM-001</span><span class="tag teal">Tracking: Lots</span><span class="tag">UoM: Units</span></div>
-        <div class="meter"><div style="width:80%"></div></div>
-        <div class="row"><span>Received 50 · Delivered 10</span><span>On hand <b>40</b></span></div>
+        <div class="meter"><div class="bar" style="width:80%"></div></div>
+        <div class="row"><span class="rd">Received 50 · Delivered 10</span><span>On hand <b class="oh">40</b></span></div>
       </article>
-      <article class="card">
+      <article class="card" data-sku="KB-002">
         <div class="card-top"><div class="icon">⌨️</div><div><h3>USB Keyboard</h3><p>Full-size wired USB keyboard</p></div></div>
         <div class="tags"><span class="tag">SKU: KB-002</span><span class="tag teal">Tracking: Quantity</span><span class="tag">UoM: Units</span></div>
-        <div class="meter"><div style="width:83%"></div></div>
-        <div class="row"><span>Received 30 · Delivered 5</span><span>On hand <b>25</b></span></div>
+        <div class="meter"><div class="bar" style="width:83%"></div></div>
+        <div class="row"><span class="rd">Received 30 · Delivered 5</span><span>On hand <b class="oh">25</b></span></div>
       </article>
     </div>
   </section>
@@ -170,7 +158,7 @@ fetch("/.netlify/functions/stock")
     <div class="table-wrap">
       <table>
         <thead><tr><th>Product</th><th>Operation</th><th>Partner</th><th>Qty</th><th>Status</th></tr></thead>
-        <tbody>
+        <tbody id="moves">
           <tr><td>Wireless Mouse</td><td><span class="pill in">Receipt</span></td><td>ABC Suppliers</td><td>+50</td><td><span class="pill done">Done</span></td></tr>
           <tr><td>USB Keyboard</td><td><span class="pill in">Receipt</span></td><td>ABC Suppliers</td><td>+30</td><td><span class="pill done">Done</span></td></tr>
           <tr><td>Wireless Mouse</td><td><span class="pill out">Delivery</span></td><td>Ali Traders</td><td>−10</td><td><span class="pill done">Done</span></td></tr>
@@ -200,5 +188,51 @@ fetch("/.netlify/functions/stock")
   </div>
 </footer>
 
+<script>
+// Loads live data from Odoo via the Netlify Function. If anything fails, the static values above stay.
+(async () => {
+  try {
+    const res = await fetch("/.netlify/functions/stock", { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const { products, moves } = await res.json();
+    const $ = id => document.getElementById(id);
+    const n = v => Number(v).toLocaleString();
+
+    const received = products.reduce((a, p) => a + p.received, 0);
+    const delivered = products.reduce((a, p) => a + p.delivered, 0);
+    $("s-in").textContent = n(received);
+    $("s-out").textContent = n(delivered);
+    $("s-on").textContent = n(products.reduce((a, p) => a + p.onHand, 0));
+    $("s-prod").textContent = products.length;
+
+    products.forEach(p => {
+      const card = document.querySelector('.card[data-sku="' + p.sku + '"]');
+      if (!card) return;
+      card.querySelector(".oh").textContent = n(p.onHand);
+      card.querySelector(".rd").textContent = "Received " + n(p.received) + " · Delivered " + n(p.delivered);
+      card.querySelector(".bar").style.width = (p.received ? Math.max(0, Math.min(100, p.onHand / p.received * 100)) : 0) + "%";
+    });
+
+    const tbody = $("moves");
+    tbody.textContent = "";
+    moves.forEach(m => {
+      const tr = document.createElement("tr");
+      const isIn = m.type === "Receipt";
+      [[m.product], [m.type, "pill " + (isIn ? "in" : "out")], [m.partner || "-"], [(isIn ? "+" : "\u2212") + n(m.qty)], ["Done", "pill done"]]
+        .forEach(([text, cls]) => {
+          const td = document.createElement("td");
+          if (cls) { const sp = document.createElement("span"); sp.className = cls; sp.textContent = text; td.appendChild(sp); }
+          else td.textContent = text;
+          tr.appendChild(td);
+        });
+      tbody.appendChild(tr);
+    });
+
+    $("live-status").textContent = "Live from Odoo \u00b7 updated " + new Date().toLocaleTimeString();
+  } catch (e) {
+    console.log("Using static values:", e.message);
+  }
+})();
+</script>
 </body>
 </html>
